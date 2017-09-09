@@ -17,6 +17,24 @@ pub fn get_day_time_interval(microseconds: i64) -> (i64, i8, f64) {
     (hours, minutes as i8, seconds)
 }
 
+pub fn split_seconds(seconds: f64) -> (i16, String) {
+    let seconds = seconds.to_string();
+    let second_stamp: Vec<&str> = seconds.split(".").collect();
+    let mut whole_seconds: i16 = second_stamp[0].parse().unwrap();
+    whole_seconds = whole_seconds.abs();
+    if let Some(remainder) = second_stamp.get(1) {
+        (whole_seconds, (*remainder).to_owned())
+    } else {
+        (whole_seconds, "0".to_owned())
+    }
+}
+
+pub fn get_absolute(number: i8) -> i16 {
+    let mut number = number as i16;
+    number = number.abs();
+    number
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
