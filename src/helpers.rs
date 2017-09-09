@@ -16,3 +16,59 @@ pub fn get_day_time_interval(microseconds: i64) -> (i64, i8, f64) {
     let seconds: f64 = (microseconds - (current_hours+(minutes * MICROS_TO_MINUTE))) as f64/MICROS_TO_SECOND as f64;
     (hours, minutes as i8, seconds)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn negative_year_month_interval() {
+        let months = i32::min_value();
+        let (years, months) = get_year_month_interval(months);
+        assert!(years == -178956970);
+        assert!(months == -8);
+    }
+
+    #[test]
+    fn positive_year_month_interval() {
+        let months = i32::max_value();
+        let (years, months) = get_year_month_interval(months);
+        assert!(years == 178956970);
+        assert!(months == 7);
+    }
+
+    #[test]
+    fn negative_day_time_interval() {
+        let microseconds = -7199000000;
+        let (hours, minutes, seconds) = get_day_time_interval(microseconds);
+        assert!(hours == -1);
+        assert!(minutes == -59);
+        assert!(seconds == -59.0);
+    }
+
+    #[test]
+    fn postive_day_time_interval() {
+        let microseconds = 7199000000;
+        let (hours, minutes, seconds) = get_day_time_interval(microseconds);
+        assert!(hours == 1);
+        assert!(minutes == 59);
+        assert!(seconds == 59.0);
+    }
+
+    #[test]
+    fn day_time_remaining_milliseconds() {
+        let microseconds = 7199001000;
+        let (hours, minutes, seconds) = get_day_time_interval(microseconds);
+        assert!(hours == 1);
+        assert!(minutes == 59);
+        assert!(seconds == 59.001);
+    }
+
+    #[test]
+    fn day_time_remaining_millisecond() {
+        let microseconds = 7199000001;
+        let (hours, minutes, seconds) = get_day_time_interval(microseconds);
+        assert!(hours == 1);
+        assert!(minutes == 59);
+        assert!(seconds == 59.000001);
+    }
+}
