@@ -1,5 +1,5 @@
 [package]
-name = "postgres-interval"
+name = "time-interval"
 version = "0.0.1"
 authors = ["rpiper"]
 
