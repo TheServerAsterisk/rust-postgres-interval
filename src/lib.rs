@@ -2,6 +2,7 @@ mod helpers;
 
 use helpers::*;
 
+/// An Iso-8601 Time Interval Representation.
 pub struct Interval {
     years: i32,
     months: i8,
@@ -75,5 +76,78 @@ impl Interval {
             minutes: minutes,
             seconds: seconds
         }
+    }
+
+    pub fn to_sql_standard(&self) -> String {
+        let only_nothing = self.is_year_month_zero() &&
+                           self.is_time_zero() &&
+                           self.is_day_zero();
+        let only_year_month = !self.is_year_month_zero() &&
+                              self.is_time_zero() &&
+                              self.is_day_zero();
+        let only_day = !self.is_day_zero() &&
+                       self.is_time_zero() &&
+                       self.is_year_month_zero();
+        let only_time = !self.is_time_zero() &&
+                        self.is_year_month_zero() &&
+                        self.is_day_zero();
+        if only_nothing {
+            "0".to_owned()
+        } else if only_year_month {
+            let months_abs = get_absolute(self.months);
+            format!("{}-{}", self.years, months_abs)
+        } else if only_day {
+          format!("{} 0:00:00", self.days)
+        } else if only_time {
+            let min_abs = get_absolute(self.minutes);
+            let (whole_seconds, remainder) = split_seconds(self.seconds);
+            if &*remainder == "0" {
+                format!("{}:{:02}:{:02}",
+                        self.hours,
+                        min_abs,
+                        whole_seconds)
+            } else {
+                format!("{}:{:02}:{:02}.{}",
+                        self.hours,
+                        min_abs,
+                        whole_seconds,
+                        remainder)
+            }
+        } else {
+            let months_abs = get_absolute(self.months);
+            let min_abs = get_absolute(self.minutes);
+            let (whole_seconds, remainder) = split_seconds(self.seconds);
+            if &*remainder == "0" {
+                format!("{:+}-{} {:+} {}:{:02}:{:02}",
+                        self.years,
+                        months_abs,
+                        self.days,
+                        self.hours,
+                        min_abs,
+                        whole_seconds)
+            } else {
+                format!("{:+}-{} {:+} {}:{:02}:{:02}.{}",
+                        self.years,
+                        months_abs,
+                        self.days,
+                        self.hours,
+                        min_abs,
+                        whole_seconds,
+                        remainder)
+            }
+        }
+
+    }
+
+    fn is_year_month_zero(&self) -> bool {
+        self.years == 0 || self.months == 0
+    }
+
+    fn is_time_zero(&self) -> bool {
+        self.hours == 0 && self.minutes == 0 && self.seconds == 0.0
+    }
+
+    fn is_day_zero(&self) -> bool {
+        self.days == 0
     }
 }
