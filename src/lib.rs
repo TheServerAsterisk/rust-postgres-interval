@@ -13,12 +13,29 @@ pub struct Interval {
 }
 
 impl Interval {
+    /// Construct a new time interval. The interval ha s certain restirctions
+    /// in that year-month and the day-time intervals must be the same sign.
+    /// Furthermore, the months must be between -11 and 11 and the minutes and seconds
+    /// must be between -59 and 59.
     pub fn new(years: i32,
                months: i8,
                days: i32,
                hours: i64,
                minutes: i8,
                seconds: f64) -> Interval {
+    if !(months.is_negative() && years.is_negative()) ||
+       !(months.is_postive() && years.is_postive()) {
+           panic!("Both years and months must have the same sign.")
+    } else if !(hours.is_negative() && minutes.is_negative() && seconds.is_negative()) ||
+              !(hours.is_postive() && minutes.is_postive() && seconds.is_postive()) {
+           panic!("Hours, minutes, and seconds must have the same sign.")
+    } else if months < -11 || months > 11 {
+           panic!("Months must be between -11 and 11.");
+    } else if minutes < -59 || minutes > 59 {
+           panic!("Minutes must be -59 and 59");
+    } else if seconds < -59.0 || seconds > 59.0 {
+           panic!("Seconds must be between -59 and 59.");
+    } else {
         Interval {
             years: years,
             months: months,
@@ -27,6 +44,8 @@ impl Interval {
             minutes: minutes,
             seconds: seconds
         }
+    }
+
     }
 
 
